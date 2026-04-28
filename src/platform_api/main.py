@@ -1,13 +1,13 @@
-# main.py
+from importlib.metadata import version
 from fastapi import FastAPI
+from .routers import health
 
-app = FastAPI(title="Platform API", version="1.0.0")
+def create_app() -> FastAPI:
+    app = FastAPI(
+        title="Platform API",
+        version=version("platform-api"),
+    )
+    return app
 
-@app.get("/health")
-def health():
-    return {"status": "ok"}
-
-@app.get("/services/{name}/status")
-def service_status(name: str):
-    # we'll wire this to real k8s later
-    return {"service": name, "status": "unknown"}
+app = create_app()
+app.include_router(health.router)
