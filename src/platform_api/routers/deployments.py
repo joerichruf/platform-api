@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends
 from ..models.deployment import DeploymentRequest, DeploymentResponse
 from ..services.kubernetes import get_k8s
+from ..services.github import get_github
 
 router = APIRouter()
 
@@ -14,6 +15,11 @@ async def post_deployments(deployment_request: DeploymentRequest) -> DeploymentR
     )
     return deployment_response
 
-@router.get("/deployments/namespaces/{namespace}/pods", tags=["deployments"])
+@router.get("/deployments/namespaces/{namespace}/pods", tags=["get pods"])
 async def get_pods(namespace: str, k8s=Depends(get_k8s)):
     return k8s.get_pods(namespace)
+
+
+@router.get("/github/{owner}/{repo}/prs", tags=["repository prs"])
+async def get_prs(owner: str, repo: str, github=Depends(get_github)):
+    return github.get_open_prs(f"{owner}/{repo}")
