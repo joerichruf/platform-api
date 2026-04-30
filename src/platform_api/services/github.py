@@ -35,6 +35,17 @@ class GitHubService:
                 "PR_author": pr.user.login
             })
         return result
+    def trigger_workflow_run(self, repo_name: str, workflow_id: str, ref: str, inputs: dict):
+        repo = self.github_client.get_repo(repo_name)
+        workflow = repo.get_workflow(workflow_id)
+        success = workflow.create_dispatch(ref=ref, inputs=inputs, throw=True)
+        return success
+    def get_workflow_run_status(self, repo_name: str, workflow_id: str):
+        repo = self.github_client.get_repo(repo_name)
+        workflow = repo.get_workflow(workflow_id)
+        runs = workflow.get_runs()
+        most_recent = runs[0]
+        return most_recent.status, most_recent.conclusion
 
 def get_github() -> GitHubService:
     return GitHubService()
